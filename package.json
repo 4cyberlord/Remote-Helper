@@ -1,0 +1,14 @@
+{
+  "name": "council-remote-helper",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Isolated terminal screenshot batches for Council Editor cloud agents",
+  "engines": { "node": ">=24" },
+  "bin": { "council-remote": "./bin/remote.mjs" },
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check bin/remote.mjs && node --check lib/api.mjs && node --check lib/display.mjs && node --check lib/state.mjs && node --check lib/capture.mjs && node --check lib/workflow.mjs && npm test"
+  },
+  "license": "MIT"
+}
