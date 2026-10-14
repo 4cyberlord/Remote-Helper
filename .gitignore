@@ -1,0 +1,5 @@
+node_modules/
+native/remote-native
+.env
+*.token
+.DS_Store
