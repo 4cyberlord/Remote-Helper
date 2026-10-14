@@ -1,0 +1,16 @@
+name: Verify
+on: [push, pull_request]
+jobs:
+  tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm run check
+  mac-bridge:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: xcrun swiftc native/remote-native.swift -o /tmp/remote-native
