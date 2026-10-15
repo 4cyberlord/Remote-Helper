@@ -3,7 +3,7 @@ import { basename } from 'node:path';
 import { createInterface } from 'node:readline';
 import { stdin, stdout } from 'node:process';
 import { nativeBridge } from '../lib/display.mjs';
-import { loadConfig, newSession, currentSession, saveSession, sessionDir, sessionLock } from '../lib/state.mjs';
+import { loadConfig, newSession, currentSession, loadSession, saveSession, sessionDir, sessionLock } from '../lib/state.mjs';
 import { capture } from '../lib/capture.mjs';
 import { operation } from '../lib/api.mjs';
 import { submit } from '../lib/workflow.mjs';
@@ -26,6 +26,7 @@ function usage() {
   council-remote             Open terminal session accepting 00–04
   council-remote login       Reauthenticate with username and PIN
   council-remote logout      Revoke this helper's sign-in
+  council-remote retry ID    Recover a previously sealed session by UUID
 
 Screenshots stay in a separate, private folder for each 00.
 Open Council Editor to see the (R) solution history.
@@ -146,8 +147,16 @@ async function main() {
     nativeBridge(['keychain-delete']); console.log('Signed out and local credential cleared.'); return;
   }
   if (command === 'login') { await ensureAuth({ fresh: true }); return; }
-  if (command && !CAPTURE_COMMANDS.has(command)) throw new Error('Unknown command. Use 00–04, or council-remote for the interactive shell.');
+  if (command && command !== 'retry' && !CAPTURE_COMMANDS.has(command)) throw new Error('Unknown command. Use 00–04, or council-remote for the interactive shell.');
   const auth = await ensureAuth();
+  if (command === 'retry') {
+    if (args.length !== 1) throw new Error('Usage: council-remote retry <session-uuid>');
+    const session = await loadSession(args[0]);
+    if (session.userId !== auth.userId) throw new Error('This session belongs to a different account.');
+    const result = await submit(session, { config: auth.config, token: auth.token });
+    console.log('Recovered (R) job: ' + result.id + '\nSession: ' + result.sessionId);
+    return;
+  }
   if (!command) return interactive(auth);
   await handle(command, args, auth);
 }

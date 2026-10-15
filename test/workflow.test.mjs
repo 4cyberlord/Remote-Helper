@@ -7,7 +7,7 @@ import { randomUUID } from 'node:crypto';
 
 const root = await mkdtemp(join(tmpdir(), 'council-remote-test-'));
 process.env.COUNCIL_REMOTE_DATA_HOME = root;
-const { newSession, currentSession, saveSession, sessionDir } = await import('../lib/state.mjs');
+const { newSession, currentSession, loadSession, saveSession, sessionDir } = await import('../lib/state.mjs');
 const { submit } = await import('../lib/workflow.mjs');
 const userId = randomUUID(), remoteSessionId = randomUUID(), jobId = randomUUID();
 
@@ -80,6 +80,18 @@ test('only numeric 00 through 04 are in published command line and installer', a
   assert.match(install, /for n in 00 01 02 03 04/);
   assert.doesNotMatch(bin, /case '05'|case '06'|case '07'|case '08'|case '09'/);
   assert.match(bin, /case '04'/);
+});
+
+test('recovering older sealed sessions does not change the new active capture batch', async () => {
+  const prior = await newSession('first', userId);
+  prior.pending = { submissionId: randomUUID(), signature: 'old', images: [] };
+  await saveSession(prior);
+  const latest = await newSession('second', userId);
+  const reloaded = await loadSession(prior.id);
+  assert.equal(reloaded.id, prior.id);
+  assert.equal(reloaded.pending.submissionId, prior.pending.submissionId);
+  assert.equal((await currentSession()).id, latest.id);
+  await assert.rejects(() => loadSession(randomUUID()), /No saved session/);
 });
 
 test('clean test state', async () => { await rm(root, { recursive: true, force: true }); });
