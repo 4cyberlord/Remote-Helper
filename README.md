@@ -32,6 +32,14 @@ Grant **Screen & System Audio Recording** permission to your Terminal app in mac
 | `03` | Capture the **right half** of that display as a PNG. |
 | `04` | **Upload and queue** that session for your cloud Council agents; return control to the terminal. |
 
+If a previous `04` failed and you have already started a new session with `00`, recover the older saved session without switching the active captures:
+
+```bash
+council-remote retry <previous-session-uuid>
+```
+
+Use the session UUID printed by the previous `00` (or in its `session.json`). This named recovery operation does not add another numeric capture command or mix the sessions. It reuses the original submission ID and cloud job if already created.
+
 You can run the numeric commands directly from Terminal or run `council-remote` for an interactive `remote>` prompt that accepts those same five commands. Typing `00` after `04` does **not** overwrite or mix with the previous session; it creates a new folder, UUID, upload paths, and submission ID.
 
 **Only these five numeric commands are installed.** There is no terminal history viewer, interactive region selection, diagnostics numbered command, or separate submit command.
