@@ -25,7 +25,8 @@ function usage() {
 
   council-remote             Open terminal session accepting 00–04
   council-remote login       Reauthenticate with username and PIN
-  council-remote logout      Revoke this helper's sign-in\n  council-remote retry ID    Recover a previously sealed session by UUID
+  council-remote logout      Revoke this helper's sign-in
+  council-remote retry ID    Recover a previously sealed session by UUID
 
 Screenshots stay in a separate, private folder for each 00.
 Open Council Editor to see the (R) solution history.
@@ -153,7 +154,7 @@ async function main() {
     const session = await loadSession(args[0]);
     if (session.userId !== auth.userId) throw new Error('This session belongs to a different account.');
     const result = await submit(session, { config: auth.config, token: auth.token });
-    console.log('Recovered (R) job: ' + result.id + '\\nSession: ' + result.sessionId);
+    console.log('Recovered (R) job: ' + result.id + '\nSession: ' + result.sessionId);
     return;
   }
   if (!command) return interactive(auth);
